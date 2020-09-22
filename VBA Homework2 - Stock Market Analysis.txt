@@ -1,0 +1,196 @@
+Sub Stock_Market_Analysis()
+
+
+For Each ws In Worksheets
+    
+    'variables
+    Dim Ticker_Symbol As String
+    Dim Yearly_Change As Double
+    Dim Perc_Change As Double
+    Dim Tot_Volume As Double
+    Dim Sum_Table_Row As Integer
+    Dim Open_Total As Double
+    Dim Max As Double
+    Dim Min As Double
+    Dim Max_Tot As Double
+    
+    'Starting Values
+    Yearly_Change = 0
+    Perc_Change = 0
+    Tot_Volume = 0
+    Open_Total = 0
+    Sum_Table_Row = 2
+    Max = 0
+    Min = 0
+    Max_Tot = 0
+    
+    
+ 
+        'headers
+        ws.Range("J1").Value = "Ticker"
+        ws.Range("K1").Value = "Yearly Change"
+        ws.Range("L1").Value = "Percentage Change"
+        ws.Range("M1").Value = "Total Stock Volume"
+        ws.Range("Q1").Value = "Ticker"
+        ws.Range("R1").Value = "Value"
+        ws.Range("P2").Value = "Greatest % Increase"
+        ws.Range("P3").Value = "Greatest % Decrease"
+        ws.Range("P4").Value = "Greatest Total Volume"
+        
+        'format
+        ws.Columns("L:L").NumberFormat = "0.00%"
+        ws.Range("R2:R3").NumberFormat = "0.00%"
+       
+
+
+        'Range defined
+        For i = 2 To ws.Range("A1").CurrentRegion.Rows.Count
+
+            'if ticker statement
+            If ws.Cells(i + 1, 1).Value <> ws.Cells(i, 1).Value Then
+
+                    'if Open_total statement
+                    If ws.Cells(i - 1, 1).Value <> ws.Cells(i, 1).Value And ws.Cells(i, 3) <> 0 Then
+
+                      Open_Total = ws.Cells(i, 3).Value
+
+                    ElseIf ws.Cells(i - 1, 1).Value = ws.Cells(i, 1).Value And ws.Cells(i - 1, 3) = 0 Then
+
+                        Open_Total = ws.Cells(i, 3).Value
+
+                    End If
+
+                'ticker
+                Ticker_Symbol = ws.Cells(i, 1).Value
+
+                'Yearly Change
+                Yearly_Change = ws.Cells(i, 6) - Open_Total
+
+
+                    'Zero Open Check
+                    If Open_Total = 0 Then
+
+                        Perc_Change = 0
+
+                        Else
+
+                        'Percent Change
+                        Perc_Change = Yearly_Change / Open_Total
+
+                    End If
+
+                'Total Stock Volume
+                Tot_Volume = Tot_Volume + ws.Cells(i, 7).Value
+
+                'Summarize
+                ws.Range("J" & Sum_Table_Row).Value = Ticker_Symbol
+                ws.Range("K" & Sum_Table_Row).Value = Yearly_Change
+                ws.Range("L" & Sum_Table_Row).Value = Perc_Change
+                ws.Range("M" & Sum_Table_Row).Value = Tot_Volume
+
+                    'Color
+                    If ws.Range("K" & Sum_Table_Row).Value > 0 Then
+
+                        ws.Range("K" & Sum_Table_Row).Interior.ColorIndex = 4
+
+                    Else
+
+                        ws.Range("K" & Sum_Table_Row).Interior.ColorIndex = 3
+
+                    End If
+
+
+                Sum_Table_Row = Sum_Table_Row + 1
+
+                'reset
+                Daily_Change = 0
+                Yearly_Change = 0
+                Perc_Change = 0
+                Tot_Volume = 0
+                Perc_Incr = Perc_Incr + 1
+
+            Else
+
+                'if Open_total statement
+                If ws.Cells(i - 1, 1).Value <> ws.Cells(i, 1).Value And ws.Cells(i, 3) <> 0 Then
+
+                    Open_Total = ws.Cells(i, 3).Value
+
+                ElseIf ws.Cells(i - 1, 1).Value = ws.Cells(i, 1).Value And ws.Cells(i - 1, 3) = 0 Then
+
+                    Open_Total = ws.Cells(i, 3).Value
+
+                End If
+
+                'volume
+                Tot_Volume = Tot_Volume + ws.Cells(i, 7).Value
+
+                'yearly change
+                Yearly_Change = ws.Cells(i, 6) - Open_Total
+
+                    'Zero Open Check
+                    If Open_Total = 0 Then
+
+                        Perc_Change = 0
+
+                        Else
+
+                        'Percent Change
+                        Perc_Change = Yearly_Change / Open_Total
+
+                    End If
+
+               End If
+
+        Next i
+
+'CHALLENGES
+        
+        'Greatest Values
+        For j = 2 To ws.Range("A1").CurrentRegion.Rows.Count
+        
+            If ws.Cells(j, 12).Value > Max Then
+                
+                Max = ws.Cells(j, 12).Value
+                
+            ElseIf ws.Cells(j, 12) < Min Then
+            
+                Min = ws.Cells(j, 12)
+            
+            ElseIf ws.Cells(j, 13) > Max_Tot Then
+            
+                Max_Tot = ws.Cells(j, 13)
+            
+            End If
+        
+        Next j
+            
+    'Greatest Values Inputs
+    ws.Range("R2").Value = Max
+    ws.Range("R3").Value = Min
+    ws.Range("R4").Value = Max_Tot
+    
+    'Greatest Value Tickers
+     For k = 2 To ws.Range("A1").CurrentRegion.Rows.Count
+        
+        If ws.Cells(k, 12) = Max Then
+        
+            ws.Cells(2, 17).Value = ws.Cells(k, 10).Value
+            
+        ElseIf ws.Cells(k, 12) = Min Then
+            
+            ws.Cells(3, 17).Value = ws.Cells(k, 10).Value
+        
+        ElseIf ws.Cells(k, 13) = Max_Tot Then
+        
+            ws.Cells(4, 17).Value = ws.Cells(k, 10).Value
+        
+        End If
+        
+   
+        Next k
+
+
+    Next ws
+
+End Sub
